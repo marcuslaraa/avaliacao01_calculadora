@@ -1,5 +1,6 @@
 import 'package:avaliacao01_calculadora/enums/button_content_calculator.dart';
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,12 +32,12 @@ class Calculator extends StatefulWidget {
 
 class _CalculatorState extends State<Calculator> {
   final TextEditingController _controller = TextEditingController(text: '0');
-  late String _input;
+  late ButtonContentCalculator lastOperation;
 
   @override
-  void initState() {
-    super.initState();
-    _input = '';
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   void _onButtonPressed(ButtonContentCalculator value) {
@@ -45,6 +46,7 @@ class _CalculatorState extends State<Calculator> {
         case ButtonContentCalculator.clear:
           _controller.clear();
           _controller.text = '0';
+          lastOperation = value;
           break;
         case ButtonContentCalculator.cl:
           if (_controller.text.isNotEmpty) {
@@ -55,38 +57,86 @@ class _CalculatorState extends State<Calculator> {
           }
           break;
         case ButtonContentCalculator.plus:
-          // validateInput(value, _controller.text);
-          _controller.text += '+';
+          if (validateInput(value, _controller.text)) break;
+          _controller.text += ButtonContentCalculator.plus.label!;
+          lastOperation = value;
           break;
         case ButtonContentCalculator.minus:
-          _controller.text += '-';
+          if (validateInput(value, _controller.text)) break;
+          _controller.text += ButtonContentCalculator.minus.label!;
+          lastOperation = value;
           break;
         case ButtonContentCalculator.multiply:
-          _controller.text += '*';
+          if (validateInput(value, _controller.text)) break;
+          _controller.text += ButtonContentCalculator.multiply.label!;
+          lastOperation = value;
           break;
         case ButtonContentCalculator.divide:
-          _controller.text += '/';
+          if (validateInput(value, _controller.text)) break;
+          _controller.text += ButtonContentCalculator.divide.label!;
+          lastOperation = value;
+          break;
+        case ButtonContentCalculator.equal:
+          _calculateResult();
+          lastOperation = value;
           break;
         default:
-          // validateInput(value, _controller.text);
+          if (validateInput(value, _controller.text)) break;
+          if (_controller.text == '0') {
+            _controller.text = value.label!;
+          } else {
+            _controller.text += value.label!;
+          }
           break;
       }
     });
   }
 
-  // void validateInput(ButtonContentCalculator value, String input) {
-  //   if (input[input.length - 1] == ButtonContentCalculator.zero.label &&
-  //       input.length == 1 &&
-  //       value.type == 'operator') {
-  //     _controller.text = '';
-  //     return;
-  //   }
-  // }
+  bool validateInput(ButtonContentCalculator value, String input) {
+    String lastChar = input.isNotEmpty ? input[input.length - 1] : '';
+    if (lastChar == ButtonContentCalculator.zero.label &&
+        input.length == 1 &&
+        value.type == 'operator') {
+      _controller.text = '0';
+      return true;
+    }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    if (value.type == 'operator') {
+      if (lastChar == '+' ||
+          lastChar == '-' ||
+          lastChar == '*' ||
+          lastChar == '/') {
+        return true;
+      }
+      return false;
+    }
+
+    if (lastOperation == ButtonContentCalculator.equal) {
+      return true;
+    }
+
+    return false;
+  }
+
+  void _calculateResult() {
+    setState(() {
+      try {
+        String expression = _controller.text;
+
+        expression = expression.replaceAll(',', '.');
+
+        Parser parser = Parser();
+        Expression exp = parser.parse(expression);
+
+        ContextModel context = ContextModel();
+
+        double result = exp.evaluate(EvaluationType.REAL, context);
+
+        _controller.text = result.toString();
+      } catch (e) {
+        _controller.text = 'Erro';
+      }
+    });
   }
 
   @override
