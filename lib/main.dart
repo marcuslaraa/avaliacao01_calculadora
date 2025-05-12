@@ -33,7 +33,7 @@ class Calculator extends StatefulWidget {
 
 class _CalculatorState extends State<Calculator> {
   final TextEditingController _controller = TextEditingController(text: '0');
-  late ButtonContentCalculator lastOperation;
+  late ButtonContentCalculator lastOperation = ButtonContentCalculator.clear;
 
   @override
   void dispose() {
@@ -168,14 +168,6 @@ class _CalculatorState extends State<Calculator> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(height: 50),
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                    fontSize: 30,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
                 SizedBox(height: 100),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -186,7 +178,7 @@ class _CalculatorState extends State<Calculator> {
                     readOnly: true,
                   ),
                 ),
-                SizedBox(height: 60),
+                SizedBox(height: 50),
 
                 Wrap(
                   spacing: 35,
