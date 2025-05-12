@@ -154,7 +154,7 @@ class _CalculatorState extends State<Calculator> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color.fromARGB(255, 1, 23, 44),
+              Color.fromARGB(255, 1, 42, 80),
               Color.fromARGB(255, 112, 132, 148),
             ],
             stops: [0.3, 1],
