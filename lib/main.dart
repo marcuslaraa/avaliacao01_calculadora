@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Calculadora',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        fontFamily: 'Roboto',
       ),
       home: const Calculator(title: 'Calculadora'),
     );
@@ -49,6 +50,7 @@ class _CalculatorState extends State<Calculator> {
           lastOperation = value;
           break;
         case ButtonContentCalculator.cl:
+          if (validateInput(value, _controller.text)) break;
           if (_controller.text.isNotEmpty) {
             _controller.text = _controller.text.substring(
               0,
@@ -63,7 +65,11 @@ class _CalculatorState extends State<Calculator> {
           break;
         case ButtonContentCalculator.minus:
           if (validateInput(value, _controller.text)) break;
-          _controller.text += ButtonContentCalculator.minus.label!;
+          if (_controller.text == '0') {
+            _controller.text = value.label!;
+          } else {
+            _controller.text += value.label!;
+          }
           lastOperation = value;
           break;
         case ButtonContentCalculator.multiply:
@@ -94,9 +100,11 @@ class _CalculatorState extends State<Calculator> {
 
   bool validateInput(ButtonContentCalculator value, String input) {
     String lastChar = input.isNotEmpty ? input[input.length - 1] : '';
+
     if (lastChar == ButtonContentCalculator.zero.label &&
         input.length == 1 &&
-        value.type == 'operator') {
+        value.type == 'operator' &&
+        value.label != '-') {
       _controller.text = '0';
       return true;
     }
@@ -145,9 +153,13 @@ class _CalculatorState extends State<Calculator> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF84CAFF), Color(0xFF001E3C)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            colors: [
+              Color.fromARGB(255, 1, 23, 44),
+              Color.fromARGB(255, 112, 132, 148),
+            ],
+            stops: [0.3, 1],
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
           ),
         ),
         child: Center(
@@ -155,7 +167,16 @@ class _CalculatorState extends State<Calculator> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 200),
+                SizedBox(height: 50),
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 30,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 100),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
@@ -178,13 +199,28 @@ class _CalculatorState extends State<Calculator> {
                           },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.all(20),
-                            backgroundColor: Colors.lightBlue,
+                            backgroundColor: const Color(0xFF303136),
                             textStyle: const TextStyle(fontSize: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: 5,
                           ),
                           child:
                               button.icon != null
-                                  ? Icon(button.icon)
-                                  : Text(button.label!),
+                                  ? Icon(
+                                    button.icon,
+                                    color: Colors.blue,
+                                    size: 25.0,
+                                  )
+                                  : Text(
+                                    button.label!,
+                                    style: const TextStyle(
+                                      fontSize: 25,
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                         );
                       }).toList(),
                 ),
